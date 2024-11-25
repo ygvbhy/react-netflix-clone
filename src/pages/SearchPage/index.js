@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "../../api/axios";
 import "./SearchPage.css";
+import { useDebounce } from "../../hooks/useDebounce";
 
 const SearchPage = () => {
   const [searchResult, setSearchResult] = useState("");
@@ -14,16 +15,18 @@ const SearchPage = () => {
 
   let query = useQuery();
   const searchTerm = query.get("q");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   useEffect(() => {
-    if (searchTerm) fetchSeachMovie(searchTerm);
-  }, [searchTerm]);
+    if (debouncedSearchTerm) fetchSeachMovie(debouncedSearchTerm);
+  }, [debouncedSearchTerm]);
 
   // 검색한 영화 검색
-  const fetchSeachMovie = async (searchTerm) => {
+  // 이벤트가 타이핑 할때마다 요청을 해서 성능 저하가 생길 수 있음
+  const fetchSeachMovie = async (debouncedSearchTerm) => {
     try {
       const request = await axios.get(
-        `/search/multi?include_adult=false&query=${searchTerm}`
+        `/search/multi?include_adult=false&query=${debouncedSearchTerm}`
       );
       setSearchResult(request.data.results);
     } catch (error) {
@@ -39,7 +42,7 @@ const SearchPage = () => {
             const movieImageUrl =
               "https://image.tmdb.org/t/p/w500" + movie.backdrop_path;
             return (
-              <div className="movie">
+              <div className="movie" key={movie.id}>
                 <div className="movie__column-poster">
                   <img
                     src={movieImageUrl}
@@ -50,6 +53,7 @@ const SearchPage = () => {
               </div>
             );
           }
+          return false;
         })}
       </section>
     ) : (
