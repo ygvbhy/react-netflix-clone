@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "../api/axios";
 import "./Row.css";
 import MovieModal from "./MovieModal";
@@ -8,15 +8,14 @@ const Row = ({ title, id, fetchUrl, isLargeRow }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [movieSelected, setMovieSelected] = useState({});
 
+  const fetchMovieData = useCallback(async () => {
+    const request = await axios.get(fetchUrl);
+    setMovies(request.data.results);
+  }, [fetchUrl]);
+
   useEffect(() => {
     fetchMovieData();
-  }, []);
-
-  const fetchMovieData = async () => {
-    const request = await axios.get(fetchUrl);
-
-    setMovies(request.data.results);
-  };
+  }, [fetchMovieData]);
 
   const handleClick = (movie) => {
     setModalOpen(true);

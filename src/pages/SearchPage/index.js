@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
 import "./SearchPage.css";
 import { useDebounce } from "../../hooks/useDebounce";
 
 const SearchPage = () => {
+  const navigate = useNavigate();
   const [searchResult, setSearchResult] = useState("");
 
   // 검색한 내용이 주소창에 실시간 변경이 진행 됨.
@@ -43,7 +44,7 @@ const SearchPage = () => {
               "https://image.tmdb.org/t/p/w500" + movie.backdrop_path;
             return (
               <div className="movie" key={movie.id}>
-                <div className="movie__column-poster">
+                <div onClick={() => navigate(`/${movie.id}`)} className="movie__column-poster">
                   <img
                     src={movieImageUrl}
                     alt="이미지"
